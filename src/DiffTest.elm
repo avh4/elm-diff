@@ -23,8 +23,7 @@ suite = Suite "Foo"
       [ NoChange "a\nb"
       , Added "1"
       , NoChange "\n"
-      , Added "xxx\n"
-      , Removed "c"
+      , Changed "c" "xxx\n"
       ]
   , test "empty strings" <|
       diffChars "" ""
@@ -74,6 +73,12 @@ suite = Suite "Foo"
       diffChars "ab" ""
       `assertEqual`
       [ Removed "ab" ]
+  , test "first char is removed" <|
+      diffChars "ab" "b"
+      `assertEqual`
+      [ Removed "a"
+      , NoChange "b"
+      ]
   -- , test "diffWords" <|
   --     diffWords "b\nc" "b1 \nxxx\n"
   --     `assertEqual`

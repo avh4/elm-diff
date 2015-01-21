@@ -24,27 +24,39 @@ type Change
   | Added String
   | Removed String
 
-merge : List Change -> List Change
-merge list = case list of
-  (Added a :: Added b :: rest) -> Added (a++b) :: rest
-  (Removed a :: Removed b :: rest) -> Removed (a++b) :: rest
-  (NoChange a :: NoChange b :: rest) -> NoChange (a++b) :: rest
-  (Changed a1 a2 :: Changed b1 b2 :: rest)  -> Changed (a1++b1) (a2++b2) :: rest
-  _ -> list
+merge : Int -> Change -> (Int,List Change) -> (Int,List Change)
+merge add next (score,list) = (add+score, case (next, list) of
+  (Added a, Added b :: rest) -> Added (a++b) :: rest
+  -- TODO: Added, Removed? (probably not)
+  -- TODO: Added, Changed?
+  (Removed a, Removed b :: rest) -> Removed (a++b) :: rest
+  (Removed a, Added b :: rest) -> Changed a b :: rest
+  (Removed a, Changed b1 b2 :: rest) -> Changed (a++b1) b2 :: rest
+  (NoChange a, NoChange b :: rest) -> NoChange (a++b) :: rest
+  -- (Changed a1 a2, Changed b1 b2 :: rest)  -> Changed (a1++b1) (a2++b2) :: rest
+  _ -> (next::list))
 
-step : (List String) -> (List String) -> List Change
+step : (List String) -> (List String) -> (Int,List Change)
 step aa bb = case (aa,bb) of
-  ([], []) -> []
-  ([], b::bb') -> merge (Added b :: step aa bb')
-  (a::aa', []) -> merge (Removed a :: step aa' bb)
+  ([], []) -> (0,[])
+  ([], b::bb') -> merge 0 (Added b) (step aa bb')
+  (a::aa', []) -> merge 0 (Removed a) (step aa' bb)
   (a::aa', b::bb') -> if
-    | a == b -> merge (NoChange a :: step aa' bb')
-    | otherwise -> merge (Changed a b :: step aa' bb')
+    | a == b -> merge 1 (NoChange a) (step aa' bb')
+    | otherwise ->
+      let
+          (ls,l) = merge 0 (Added b) (step aa bb')
+          (rs,r) = merge 0 (Removed a) (step aa' bb)
+      in
+        if
+          | ls > rs -> (ls,l)
+          | otherwise -> (rs,r)
+
 
 {-| Diffs two blocks of text, comparing character by character.
 -}
 diffChars : String -> String -> List Change
-diffChars a b = step (String.split "" a) (String.split "" b)
+diffChars a b = step (String.split "" a) (String.split "" b) |> snd
 
 -- {-| Diffs two blocks of text, comparing comparing word by word, ignoring whitespace.
 -- -}
