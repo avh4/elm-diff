@@ -32,19 +32,19 @@ merge list = case list of
   (Changed a1 a2 :: Changed b1 b2 :: rest)  -> Changed (a1++b1) (a2++b2) :: rest
   _ -> list
 
-step : (List String) -> (List String) -> List Change -> List Change
-step aa bb acc = case (aa,bb) of
+step : (List String) -> (List String) -> List Change
+step aa bb = case (aa,bb) of
   ([], []) -> []
-  ([], b::bb') -> merge (Added b :: step aa bb' [])
-  (a::aa', []) -> merge (Removed a :: step aa' bb [])
+  ([], b::bb') -> merge (Added b :: step aa bb')
+  (a::aa', []) -> merge (Removed a :: step aa' bb)
   (a::aa', b::bb') -> if
-    | a == b -> merge (NoChange a :: step aa' bb' [])
-    | otherwise -> merge (Changed a b :: step aa' bb' [])
+    | a == b -> merge (NoChange a :: step aa' bb')
+    | otherwise -> merge (Changed a b :: step aa' bb')
 
 {-| Diffs two blocks of text, comparing character by character.
 -}
 diffChars : String -> String -> List Change
-diffChars a b = step (String.split "" a) (String.split "" b) []
+diffChars a b = step (String.split "" a) (String.split "" b)
 
 -- {-| Diffs two blocks of text, comparing comparing word by word, ignoring whitespace.
 -- -}
