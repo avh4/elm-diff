@@ -52,11 +52,13 @@ step aa bb = case (aa,bb) of
           | ls > rs -> (ls,l)
           | otherwise -> (rs,r)
 
+diff : (String -> List String) -> String -> String -> List Change
+diff tokenize a b = step (tokenize a) (tokenize b) |> snd
 
 {-| Diffs two blocks of text, comparing character by character.
 -}
 diffChars : String -> String -> List Change
-diffChars a b = step (String.split "" a) (String.split "" b) |> snd
+diffChars = diff (String.split "")
 
 -- {-| Diffs two blocks of text, comparing comparing word by word, ignoring whitespace.
 -- -}
@@ -78,7 +80,7 @@ tokenizeLines s =
 {-| Diffs two blocks of text, comparing line by line.
 -}
 diffLines : String -> String -> List Change
-diffLines a b = step (tokenizeLines a) (tokenizeLines b) |> snd
+diffLines = diff tokenizeLines
 
 -- {-| Diffs two blocks of text, comparing sentence by sentence.
 -- -}
