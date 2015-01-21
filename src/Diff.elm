@@ -27,6 +27,7 @@ diffChars : String -> String -> List Change
 diffChars a b = if
   | a == b -> [ NoChange a ]
   | a == "" -> [ Added b ]
+  | b == "" -> [ Removed a ]
   | otherwise -> [ Changed a b ]
 
 -- {-| Diffs two blocks of text, comparing comparing word by word, ignoring whitespace.
