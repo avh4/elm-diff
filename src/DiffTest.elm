@@ -34,6 +34,10 @@ suite = Suite "Foo"
       diffChars "a" "b"
       `assertEqual`
       [ Changed "a" "b" ]
+  , test "single char is added" <|
+      diffChars "" "b"
+      `assertEqual`
+      [ Added "b" ]
   -- , test "diffWords" <|
   --     diffWords "b\nc" "b1 \nxxx\n"
   --     `assertEqual`
