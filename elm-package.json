@@ -1,6 +1,6 @@
 {
     "version": "1.0.0",
-    "summary": "",
+    "summary": "Compute changes between strings",
     "repository": "https://github.com/avh4/elm-diff.git",
     "license": "BSD3",
     "source-directories": [
