@@ -5,8 +5,6 @@ set -v
 
 if [ "$1" == "--clean" ]; then
   rm -Rf elm-stuff/build-artifacts
-  elm-make src/Main.elm --output build/main.js
-  rm -Rf elm-stuff/build-artifacts
 fi
 
 if ! npm list | grep " jsdom@"; then
