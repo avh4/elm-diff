@@ -24,22 +24,22 @@ type Change
   | Added String
   | Removed String
 
+merge : List Change -> List Change
+merge list = case list of
+  (Added a :: Added b :: rest) -> Added (a++b) :: rest
+  (Removed a :: Removed b :: rest) -> Removed (a++b) :: rest
+  (NoChange a :: NoChange b :: rest) -> NoChange (a++b) :: rest
+  (Changed a1 a2 :: Changed b1 b2 :: rest)  -> Changed (a1++b1) (a2++b2) :: rest
+  _ -> list
+
 step : (List String) -> (List String) -> List Change -> List Change
 step aa bb acc = case (aa,bb) of
   ([], []) -> []
-  ([], b::bb') -> case step aa bb' [] of
-    (Added x::rest) -> Added (b++x) :: [] -- TODO: rest?
-    rest -> Added b :: [] -- TODO: rest?
-  (a::aa', []) -> case step aa' bb [] of
-    (Removed x::rest) -> Removed (a++x) :: [] -- TODO: rest?
-    rest -> Removed a :: [] -- TODO: rest?
+  ([], b::bb') -> merge (Added b :: step aa bb' [])
+  (a::aa', []) -> merge (Removed a :: step aa' bb [])
   (a::aa', b::bb') -> if
-    | a == b -> case step aa' bb' [] of
-      (NoChange x::rest) -> NoChange (a++x) :: [] --TODO: rest?
-      rest -> NoChange a :: rest
-    | otherwise -> case step aa' bb' [] of
-      (Changed x y::rest) -> Changed (a++x) (b++y) :: [] --TODO: rest?
-      rest -> Changed a b :: rest
+    | a == b -> merge (NoChange a :: step aa' bb' [])
+    | otherwise -> merge (Changed a b :: step aa' bb' [])
 
 {-| Diffs two blocks of text, comparing character by character.
 -}
