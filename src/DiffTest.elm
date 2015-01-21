@@ -10,14 +10,13 @@ type TestType
   | Bar String
 
 suite = Suite "Foo"
-  -- [ test "diffLines" <|
-  --     diffLines "a\nb\nc" "a\nb1\nxxx\n"
-  --     `assertEqual`
-  --     [ NoChange "a\n"
-  --     , Added "b1\nxxx\n"
-  --     , Removed "b\nc"
-  --     ]
-  [ test "diffChars" <|
+  [ test "diffLines" <|
+      diffLines "a\nb\nc" "a\nb1\nxxx\n"
+      `assertEqual`
+      [ NoChange "a\n"
+      , Changed "b\nc" "b1\nxxx\n"
+      ]
+  , test "diffChars" <|
       diffChars "a\nb\nc" "a\nb1\nxxx\n"
       `assertEqual`
       [ NoChange "a\nb"

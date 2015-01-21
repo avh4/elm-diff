@@ -1,6 +1,6 @@
 module Diff
-  ( diffChars
-  -- , diffWords, diffWordsWithSpace, diffLines, diffSentences
+  ( diffChars, diffLines
+  -- , diffWords, diffWordsWithSpace, diffSentences
   -- , diffInternalStructure
   , Change(..)
   ) where
@@ -67,12 +67,19 @@ diffChars a b = step (String.split "" a) (String.split "" b) |> snd
 -- -}
 -- diffWordsWithSpace : String -> String -> List Change
 -- diffWordsWithSpace = Native.JsDiff.diffWordsWithSpace
---
--- {-| Diffs two blocks of text, comparing line by line.
--- -}
--- diffLines : String -> String -> List Change
--- diffLines = Native.JsDiff.diffLines
---
+
+tokenizeLines s =
+  let
+      tokens = String.split "\n" s
+      n = List.length tokens
+  in tokens
+    |> List.indexedMap (\i s -> if i < n-1 then s ++ "\n" else s)
+
+{-| Diffs two blocks of text, comparing line by line.
+-}
+diffLines : String -> String -> List Change
+diffLines a b = step (tokenizeLines a) (tokenizeLines b) |> snd
+
 -- {-| Diffs two blocks of text, comparing sentence by sentence.
 -- -}
 -- diffSentences : String -> String -> List Change
