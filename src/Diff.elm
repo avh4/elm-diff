@@ -10,7 +10,7 @@ diff algorithm.
 # Types and Constructors
 @docs Change
 
-# Diffing text
+# Diffing strings
 @docs diffChars, diffLines
 
 -}
