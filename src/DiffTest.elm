@@ -26,14 +26,10 @@ suite = Suite "Foo"
       , Added "xxx\n"
       , Removed "c"
       ]
-  , test "single char that is equal" <|
-      diffChars "a" "a"
+  , test "empty strings" <|
+      diffChars "" ""
       `assertEqual`
-      [ NoChange "a" ]
-  , test "single char that is changed" <|
-      diffChars "a" "b"
-      `assertEqual`
-      [ Changed "a" "b" ]
+      []
   , test "single char is added" <|
       diffChars "" "b"
       `assertEqual`
@@ -42,6 +38,34 @@ suite = Suite "Foo"
       diffChars "a" ""
       `assertEqual`
       [ Removed "a" ]
+  , test "single char that is equal" <|
+      diffChars "a" "a"
+      `assertEqual`
+      [ NoChange "a" ]
+  , test "single char that is changed" <|
+      diffChars "a" "b"
+      `assertEqual`
+      [ Changed "a" "b" ]
+  , test "second char is added" <|
+      diffChars "a" "ab"
+      `assertEqual`
+      [ NoChange "a"
+      , Added "b"
+      ]
+  , test "second char is equal" <|
+      diffChars "ab" "1b"
+      `assertEqual`
+      [ Changed "a" "1"
+      , NoChange "b"
+      ]
+  , test "two chars are equal" <|
+      diffChars "ab" "ab"
+      `assertEqual`
+      [ NoChange "ab" ]
+  , test "two chars are changed" <|
+      diffChars "ab" "12"
+      `assertEqual`
+      [ Changed "ab" "12" ]
   -- , test "diffWords" <|
   --     diffWords "b\nc" "b1 \nxxx\n"
   --     `assertEqual`
