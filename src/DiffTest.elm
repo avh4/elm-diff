@@ -66,6 +66,14 @@ suite = Suite "Foo"
       diffChars "ab" "12"
       `assertEqual`
       [ Changed "ab" "12" ]
+  , test "two chars are added" <|
+      diffChars "" "ab"
+      `assertEqual`
+      [ Added "ab" ]
+  , test "two chars are removed" <|
+      diffChars "ab" ""
+      `assertEqual`
+      [ Removed "ab" ]
   -- , test "diffWords" <|
   --     diffWords "b\nc" "b1 \nxxx\n"
   --     `assertEqual`

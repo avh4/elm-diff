@@ -27,14 +27,18 @@ type Change
 step : (List String) -> (List String) -> List Change -> List Change
 step aa bb acc = case (aa,bb) of
   ([], []) -> []
-  ([], b::bb') -> Added b :: [] --step aa bb' []
-  (a::aa', []) -> Removed a :: [] -- step aa' bb []
+  ([], b::bb') -> case step aa bb' [] of
+    (Added x::rest) -> Added (b++x) :: [] -- TODO: rest?
+    rest -> Added b :: [] -- TODO: rest?
+  (a::aa', []) -> case step aa' bb [] of
+    (Removed x::rest) -> Removed (a++x) :: [] -- TODO: rest?
+    rest -> Removed a :: [] -- TODO: rest?
   (a::aa', b::bb') -> if
     | a == b -> case step aa' bb' [] of
-      (NoChange x::rest) -> NoChange (a ++ x) :: []-- NoChange a :: step aa' bb' []
+      (NoChange x::rest) -> NoChange (a++x) :: [] --TODO: rest?
       rest -> NoChange a :: rest
     | otherwise -> case step aa' bb' [] of
-      (Changed x y::rest) -> Changed (a++x) (b++y) :: []
+      (Changed x y::rest) -> Changed (a++x) (b++y) :: [] --TODO: rest?
       rest -> Changed a b :: rest
 
 {-| Diffs two blocks of text, comparing character by character.
