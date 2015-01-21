@@ -5,5 +5,5 @@ Compares strings to produce change lists.  `diffChars` and `diffLines` are provi
 import Diff (..)
 
 diffChars "abc" "aBcd"
-  -- [ NoChange "a", Changed "b B", NoChange "c", Added "d" ]
+  -- [ NoChange "a", Changed "b" "B", NoChange "c", Added "d" ]
 ```
