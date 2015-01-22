@@ -56,6 +56,9 @@ diff : (String -> List String) -> String -> String -> List Change
 diff tokenize a b = step (tokenize a) (tokenize b) |> snd
 
 {-| Diffs two strings, comparing character by character.
+
+    diffChars "abc" "aBcd"
+      == [ NoChange "a", Changed "b" "B", NoChange "c", Added "d" ]
 -}
 diffChars : String -> String -> List Change
 diffChars = diff (String.split "")
@@ -68,6 +71,26 @@ tokenizeLines s =
     |> List.indexedMap (\i s -> if i < n-1 then s ++ "\n" else s)
 
 {-| Diffs two strings, comparing line by line.
+
+    original = """Brian
+    Sohie
+    Oscar
+    Stella
+    Takis
+    """
+
+    changed = """BRIAN
+    Stella
+    Frosty
+    Takis
+    """
+
+    diffLines original changed
+      == [ Changed "Brian\nSohie\nOscar\n" "BRIAN\n"
+          , NoChange "Stella\n"
+          , Added "Frosty\n"
+          , NoChange "Takis\n"
+          ]
 -}
 diffLines : String -> String -> List Change
 diffLines = diff tokenizeLines
