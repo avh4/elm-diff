@@ -105,4 +105,9 @@ suite = Suite "Foo"
       , Added "Frosty\n"
       , NoChange "Takis\n"
       ]
+  , test "performance with no matches" <|
+      diffChars "abcdefghijklmnopqrstuvwxyz" "1234567890"
+      `assertEqual`
+      [ Changed "abcdefghijklmnopqrstuvwxyz" "1234567890"
+      ]
   ]

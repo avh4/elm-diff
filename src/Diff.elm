@@ -51,6 +51,8 @@ step aa bb = case (aa,bb) of
   (a::aa', []) -> sum 0 (Removed a) (step aa' bb)
   (a::aa', b::bb') -> if
     | a == b -> sum 1 (NoChange a) (step aa' bb')
+    | not (List.member a bb') -> sum 0 (Removed a) (step aa' bb)
+    | not (List.member b aa') -> sum 0 (Added b) (step aa bb')
     | otherwise ->
       let
           (ls,l) = sum 0 (Added b) (step aa bb')
