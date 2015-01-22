@@ -24,8 +24,13 @@ type Change
   | Added String
   | Removed String
 
-merge : Int -> Change -> (Int,List Change) -> (Int,List Change)
-merge add next (score,list) = (add+score, case (next, list) of
+mergeChanges : Change -> List Change -> List Change
+mergeChanges next list = case (next, list) of
+  (Removed a, Added b :: rest) -> Changed a b :: rest
+  _ -> (next::list)
+
+mergeAll : Change -> List Change -> List Change
+mergeAll next list = case (next, list) of
   (Added a, Added b :: rest) -> Added (a++b) :: rest
   -- TODO: Added, Removed? (probably not)
   -- TODO: Added, Changed?
@@ -33,20 +38,23 @@ merge add next (score,list) = (add+score, case (next, list) of
   (Removed a, Added b :: rest) -> Changed a b :: rest
   (Removed a, Changed b1 b2 :: rest) -> Changed (a++b1) b2 :: rest
   (NoChange a, NoChange b :: rest) -> NoChange (a++b) :: rest
-  -- (Changed a1 a2, Changed b1 b2 :: rest)  -> Changed (a1++b1) (a2++b2) :: rest
-  _ -> (next::list))
+  (Changed a1 a2, Changed b1 b2 :: rest)  -> Changed (a1++b1) (a2++b2) :: rest
+  _ -> (next::list)
+
+sum : Int -> Change -> (Int,List Change) -> (Int,List Change)
+sum add next (score,list) = (add+score, (next::list))
 
 step : (List String) -> (List String) -> (Int,List Change)
 step aa bb = case (aa,bb) of
   ([], []) -> (0,[])
-  ([], b::bb') -> merge 0 (Added b) (step aa bb')
-  (a::aa', []) -> merge 0 (Removed a) (step aa' bb)
+  ([], b::bb') -> sum 0 (Added b) (step aa bb')
+  (a::aa', []) -> sum 0 (Removed a) (step aa' bb)
   (a::aa', b::bb') -> if
-    | a == b -> merge 1 (NoChange a) (step aa' bb')
+    | a == b -> sum 1 (NoChange a) (step aa' bb')
     | otherwise ->
       let
-          (ls,l) = merge 0 (Added b) (step aa bb')
-          (rs,r) = merge 0 (Removed a) (step aa' bb)
+          (ls,l) = sum 0 (Added b) (step aa bb')
+          (rs,r) = sum 0 (Removed a) (step aa' bb)
       in
         if
           | ls > rs -> (ls,l)
@@ -55,20 +63,34 @@ step aa bb = case (aa,bb) of
 diff : (String -> List String) -> String -> String -> List Change
 diff tokenize a b = step (tokenize a) (tokenize b) |> snd
 
-{-| Diffs two strings, comparing character by character.
+rediff1 : (String -> List String) -> Change -> List Change
+rediff1 tokenize change = case change of
+  Changed a b -> diff tokenize a b
+  _ -> [change]
+
+rediff : (String -> List String) -> List Change -> List Change
+rediff tokenize input = input |> List.map (rediff1 tokenize) |> List.concat
+
+{-| Diffs two strings, first comparing line by line, then comparing character by
+charater within the changed lines.
 
     diffChars "abc" "aBcd"
       == [ NoChange "a", Changed "b" "B", NoChange "c", Added "d" ]
 -}
 diffChars : String -> String -> List Change
-diffChars = diff (String.split "")
+diffChars a b = diff tokenizeLines a b
+  |> List.foldr mergeChanges []
+  |> rediff (String.split "")
+  |> List.foldr mergeAll []
 
 tokenizeLines s =
   let
       tokens = String.split "\n" s
       n = List.length tokens
-  in tokens
-    |> List.indexedMap (\i s -> if i < n-1 then s ++ "\n" else s)
+  in if
+    | s == "" -> []
+    | otherwise -> tokens
+      |> List.indexedMap (\i s -> if i < n-1 then s ++ "\n" else s)
 
 {-| Diffs two strings, comparing line by line.
 
@@ -93,4 +115,5 @@ tokenizeLines s =
           ]
 -}
 diffLines : String -> String -> List Change
-diffLines = diff tokenizeLines
+diffLines a b = diff tokenizeLines a b
+    |> List.foldr mergeAll []

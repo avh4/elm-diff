@@ -9,6 +9,19 @@ type TestType
   = Foo Int
   | Bar String
 
+original = """Brian
+Sohie
+Oscar
+Stella
+Takis
+"""
+
+changed = """BRIAN
+Stella
+Frosty
+Takis
+"""
+
 suite = Suite "Foo"
   [ test "diffLines" <|
       diffLines "a\nb\nc" "a\nb1\nxxx\n"
@@ -19,10 +32,8 @@ suite = Suite "Foo"
   , test "diffChars" <|
       diffChars "a\nb\nc" "a\nb1\nxxx\n"
       `assertEqual`
-      [ NoChange "a\nb"
-      , Added "1"
-      , NoChange "\n"
-      , Changed "c" "xxx\n"
+      [ NoChange "a\n"
+      , Changed "b\nc" "b1\nxxx\n"
       ]
   , test "empty strings" <|
       diffChars "" ""
@@ -77,5 +88,21 @@ suite = Suite "Foo"
       `assertEqual`
       [ Removed "a"
       , NoChange "b"
+      ]
+  , test "performance of diffLines" <|
+      diffLines original changed
+      `assertEqual`
+      [ Changed "Brian\nSohie\nOscar\n" "BRIAN\n"
+      , NoChange "Stella\n"
+      , Added "Frosty\n"
+      , NoChange "Takis\n"
+      ]
+  , test "performance of diffChars" <|
+      diffChars original changed
+      `assertEqual`
+      [ Changed "Brian\nSohie\nOscar" "BRIAN"
+      , NoChange "\nStella\n"
+      , Added "Frosty\n"
+      , NoChange "Takis\n"
       ]
   ]
