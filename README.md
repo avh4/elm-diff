@@ -1,7 +1,7 @@
 
 Compares strings to produce change lists.  `diffChars` and `diffLines` are provided.
 
-The currently-implemented algorithm is the [Hunt-McIlroy algorithm](http://en.wikipedia.org/wiki/Hunt%E2%80%93McIlroy_algorithm).  Adequate performance of `diffChars` is achieved by first diffing the lines, and then diffing the chars only of the changed lines.
+The currently-implemented algorithm is the [Hunt-McIlroy algorithm](http://en.wikipedia.org/wiki/Hunt%E2%80%93McIlroy_algorithm).  Adequate performance of `diffChars` is achieved by first diffing the lines, and then diffing the chars only of the changed lines, and by returning early if a given token is not found anywhere in the remaining list.
 
 Pull requests optimizing the existing algorithm are welcome.
 
