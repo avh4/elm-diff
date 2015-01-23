@@ -32,8 +32,10 @@ suite = Suite "Foo"
   , test "diffChars" <|
       diffChars "a\nb\nc" "a\nb1\nxxx\n"
       `assertEqual`
-      [ NoChange "a\n"
-      , Changed "b\nc" "b1\nxxx\n"
+      [ NoChange "a\nb"
+      , Added "1"
+      , NoChange "\n"
+      , Changed "c" "xxx\n"
       ]
   , test "empty strings" <|
       diffChars "" ""
@@ -89,6 +91,14 @@ suite = Suite "Foo"
       [ Removed "a"
       , NoChange "b"
       ]
+  -- , test "andThen" <|
+  --     (diffLines original changed |> andThen diffChars)
+  --     `assertEqual`
+  --     [ Changed "Brian\nSohie\nOscar" "BRIAN"
+  --     , NoChange "\nStella\n"
+  --     , Added "Frosty\n"
+  --     , NoChange "Takis\n"
+  --     ]
   , test "performance of diffLines" <|
       diffLines original changed
       `assertEqual`
@@ -100,14 +110,25 @@ suite = Suite "Foo"
   , test "performance of diffChars" <|
       diffChars original changed
       `assertEqual`
-      [ Changed "Brian\nSohie\nOscar" "BRIAN"
-      , NoChange "\nStella\n"
-      , Added "Frosty\n"
-      , NoChange "Takis\n"
+      [ NoChange "B"
+      , Changed "rian\nSohie\nOscar" "RIAN"
+      , NoChange "\nStella"
+      , Added "\nFrosty"
+      , NoChange "\nTakis\n"
       ]
   , test "performance with no matches" <|
       diffChars "abcdefghijklmnopqrstuvwxyz" "1234567890"
       `assertEqual`
       [ Changed "abcdefghijklmnopqrstuvwxyz" "1234567890"
+      ]
+  , test "performance of DiffChars" <|
+    diffChars
+      "Expected Fail (Diff (\"Expected Foo { x = 1 } to equal Bar (Just \"hi\")\")"
+      "Expected Foo { x = 1 } to equal Bar (Just \"hi\")"
+      `assertEqual`
+      [ Removed ("Expected Fail (Diff (\"")
+      , NoChange ("Expected Foo { x = 1 } to equal Bar (Just \"hi")
+      , Removed "\")" -- TODO: why aren't the last two changes flipped?
+      , NoChange "\")"
       ]
   ]
