@@ -1,5 +1,5 @@
 {
-    "version": "1.0.3",
+    "version": "1.0.4",
     "summary": "Compute changes between strings",
     "repository": "https://github.com/avh4/elm-diff.git",
     "license": "BSD3",
