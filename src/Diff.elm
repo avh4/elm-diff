@@ -132,7 +132,7 @@ diff tokenize a b =
 -- rediff : (String -> List String) -> List Change -> List Change
 -- rediff tokenize input = input |> List.map (rediff1 tokenize) |> List.concat
 
-{-| Diffs two strings, first comparing character by charater.
+{-| Diffs two strings, comparing character by charater.
 
     diffChars "abc" "aBcd"
       == [ NoChange "a", Changed "b" "B", NoChange "c", Added "d" ]
