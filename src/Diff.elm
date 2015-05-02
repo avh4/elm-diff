@@ -18,7 +18,7 @@ diff algorithm.
 import List
 import String
 import Dict
-import Dict (Dict)
+import Dict exposing (Dict)
 import Maybe
 
 type Change

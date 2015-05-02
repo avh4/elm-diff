@@ -1,9 +1,9 @@
 module DiffTest where
 
-import ElmTest.Assertion (..)
-import ElmTest.Test (..)
+import ElmTest.Assertion exposing (..)
+import ElmTest.Test exposing (..)
 
-import Diff (..)
+import Diff exposing (..)
 
 type TestType
   = Foo Int
