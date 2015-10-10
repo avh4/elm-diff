@@ -20,6 +20,7 @@ import String
 import Dict
 import Dict exposing (Dict)
 import Maybe
+import Debug
 
 {-| -}
 type Change
@@ -47,24 +48,26 @@ score : Int -> Change -> Cell -> Cell
 score add c (s,cs) = (s + add, c::cs)
 
 scores : Maybe Cell -> Maybe Cell -> Maybe Cell -> (From, Int, Change) -> Maybe Cell
-scores tl t l (from, add, c) = (case from of
-  UseA -> t
-  UseB -> l
-  UseBoth -> tl
+scores tl t l (from, add, c) =
+  (case from of
+    UseA -> t
+    UseB -> l
+    UseBoth -> tl
   ) |> Maybe.map (score add c)
 
 bestScore : Maybe Cell -> Maybe Cell -> Maybe Cell
 bestScore ma mb = case (ma,mb) of
   (m, Nothing) -> m
   (Nothing, m) -> m
-  (Just (sa,ca), Just (sb,cb)) -> if
-    | sb > sa -> Just (sb, cb)
-    | otherwise -> Just (sa, ca)
+  (Just (sa,ca), Just (sb,cb)) ->
+    if sb > sa
+      then Just (sb, cb)
+      else Just (sa, ca)
 
 orCrash : Maybe a -> a
 orCrash m = case m of
   Just a -> a
-  -- Nothing -> Debug.crash "No options"
+  _ -> Debug.crash "No options"
 
 best : Maybe Cell -> Maybe Cell -> Maybe Cell -> String -> String -> Cell
 best tl t l a b = choices a b
@@ -73,13 +76,13 @@ best tl t l a b = choices a b
   |> orCrash -- should only happen if the grid as initialized incorrectly
 
 choices : String -> String -> List (From, Int, Change)
-choices a b = if
-  | a == b ->
+choices a b =
+  if a == b then
     [ (UseA, 0, Removed a)
     , (UseB, 0, Added b)
     , (UseBoth, 1, NoChange a)
     ]
-  | otherwise ->
+  else
     [ (UseA, 0, Removed a)
     , (UseB, 0, Added b)
     , (UseBoth, 0, Changed a b)
@@ -116,10 +119,13 @@ diff : (String -> List String) -> String -> String -> List Change
 diff tokenize a b =
   let az = tokenize a
       bs = tokenize b
-  in if
-    | az == [] -> List.map Added bs |> List.foldr mergeAll []
-    | bs == [] -> List.map Removed az |> List.foldr mergeAll []
-    | otherwise -> calcGrid az bs
+  in
+    if az == [] then
+      List.map Added bs |> List.foldr mergeAll []
+    else if bs == [] then
+      List.map Removed az |> List.foldr mergeAll []
+    else
+      calcGrid az bs
       |> Dict.get (-1+List.length az, -1+List.length bs)
       |> Maybe.map (\(score,changes) -> changes)
       |> Maybe.withDefault []
@@ -145,9 +151,11 @@ tokenizeLines s =
   let
       tokens = String.split "\n" s
       n = List.length tokens
-  in if
-    | s == "" -> []
-    | otherwise -> tokens
+  in
+    if s == "" then
+      []
+    else
+      tokens
       |> List.indexedMap (\i s -> if i < n-1 then s ++ "\n" else s)
 
 {-| Diffs two strings, comparing line by line.
