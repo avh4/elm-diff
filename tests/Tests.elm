@@ -1,4 +1,4 @@
-module AllTests where
+module Tests where
 
 import ElmTest.Assertion exposing (..)
 import ElmTest.Test exposing (..)
