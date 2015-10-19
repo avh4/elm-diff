@@ -15,12 +15,12 @@ diff algorithm.
 
 -}
 
-import List
-import String
-import Dict
-import Dict exposing (Dict)
-import Maybe
 import Debug
+import Dict exposing (Dict)
+import List
+import Maybe
+import String
+
 
 {-| -}
 type Change
@@ -28,6 +28,7 @@ type Change
   | Changed String String
   | Added String
   | Removed String
+
 
 mergeAll : Change -> List Change -> List Change
 mergeAll next list = case (next, list) of
@@ -41,11 +42,16 @@ mergeAll next list = case (next, list) of
   (Changed a1 a2, Changed b1 b2 :: rest)  -> Changed (a1++b1) (a2++b2) :: rest
   _ -> (next::list)
 
+
 type alias Cell = (Int, List Change)
+
+
 type From = UseBoth | UseA | UseB
+
 
 score : Int -> Change -> Cell -> Cell
 score add c (s,cs) = (s + add, c::cs)
+
 
 scores : Maybe Cell -> Maybe Cell -> Maybe Cell -> (From, Int, Change) -> Maybe Cell
 scores tl t l (from, add, c) =
@@ -54,6 +60,7 @@ scores tl t l (from, add, c) =
     UseB -> l
     UseBoth -> tl
   ) |> Maybe.map (score add c)
+
 
 bestScore : Maybe Cell -> Maybe Cell -> Maybe Cell
 bestScore ma mb = case (ma,mb) of
@@ -64,16 +71,19 @@ bestScore ma mb = case (ma,mb) of
       then Just (sb, cb)
       else Just (sa, ca)
 
+
 orCrash : Maybe a -> a
 orCrash m = case m of
   Just a -> a
   _ -> Debug.crash "No options"
+
 
 best : Maybe Cell -> Maybe Cell -> Maybe Cell -> String -> String -> Cell
 best tl t l a b = choices a b
   |> List.map (scores tl t l)
   |> List.foldl bestScore Nothing
   |> orCrash -- should only happen if the grid as initialized incorrectly
+
 
 choices : String -> String -> List (From, Int, Change)
 choices a b =
@@ -88,10 +98,13 @@ choices a b =
     , (UseBoth, 0, Changed a b)
     ]
 
+
 type alias State = (Dict (Int,Int) Cell)
+
 
 val : Int -> Int -> State -> Maybe Cell
 val row col s = Dict.get (row,col) s
+
 
 calcCell : (Int, String) -> (Int, String) -> State -> State
 calcCell (row,a) (col,b) s = Dict.insert (row,col) (best
@@ -100,20 +113,25 @@ calcCell (row,a) (col,b) s = Dict.insert (row,col) (best
   (val (row) (col-1) s)
   a b) s
 
+
 calcRow : List String -> (Int,String) -> State -> State
 calcRow bs (row,a) d = bs
   |> List.indexedMap (,)
   |> List.foldl (calcCell (row,a)) d
 
+
+initialGrid : List String -> List String -> State
 initialGrid az bs =
   Dict.singleton (-1,-1) (0,[])
   |> calcRow bs (-1,"")
   |> (\d -> List.foldl (\a -> calcCell a (-1,"")) d (az |> List.indexedMap (,)))
 
+
 calcGrid : List String -> List String -> State
 calcGrid az bs = az
   |> List.indexedMap (,)
   |> List.foldl (calcRow bs) (initialGrid az bs)
+
 
 diff : (String -> List String) -> String -> String -> List Change
 diff tokenize a b =
@@ -131,6 +149,7 @@ diff tokenize a b =
       |> Maybe.withDefault []
       |> List.foldl mergeAll []
 
+
 -- rediff1 : (String -> List String) -> Change -> List Change
 -- rediff1 tokenize change = case change of
 --   Changed a b -> diff tokenize a b
@@ -138,6 +157,7 @@ diff tokenize a b =
 --
 -- rediff : (String -> List String) -> List Change -> List Change
 -- rediff tokenize input = input |> List.map (rediff1 tokenize) |> List.concat
+
 
 {-| Diffs two strings, comparing character by charater.
 
@@ -147,6 +167,8 @@ diff tokenize a b =
 diffChars : String -> String -> List Change
 diffChars = diff (String.split "")
 
+
+tokenizeLines : String -> List String
 tokenizeLines s =
   let
       tokens = String.split "\n" s
@@ -157,6 +179,7 @@ tokenizeLines s =
     else
       tokens
       |> List.indexedMap (\i s -> if i < n-1 then s ++ "\n" else s)
+
 
 {-| Diffs two strings, comparing line by line.
 
