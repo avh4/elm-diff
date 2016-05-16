@@ -1,10 +1,11 @@
-module Tests where
+module Tests exposing (..)
 
-import ElmTest.Assertion exposing (..)
-import ElmTest.Test exposing (..)
-
+import ElmTest exposing (..)
 import DiffTest
 
-all = Suite "avh4/elm-diff"
-  [ DiffTest.suite
-  ]
+
+all : Test
+all =
+    suite "avh4/elm-diff"
+        [ DiffTest.all
+        ]

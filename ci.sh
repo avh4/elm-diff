@@ -1,7 +1,9 @@
 #!/bin/bash
 
-set -e
-set -x
+set -ex
 
 elm-make
-(cd tests; elm-test TestRunner.elm)
+
+cd tests
+elm-make TestRunner.elm --output tests.js
+node tests.js
