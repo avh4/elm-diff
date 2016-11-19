@@ -1,11 +1,11 @@
 module Tests exposing (..)
 
-import ElmTest exposing (..)
+import Test exposing (..)
 import DiffTest
 
 
 all : Test
 all =
-    suite "avh4/elm-diff"
+    describe "avh4/elm-diff"
         [ DiffTest.all
         ]
